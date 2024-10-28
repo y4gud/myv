@@ -832,6 +832,7 @@ func (c *Config) GetGoPhishInsecureTLS() bool {
 	return c.gophishConfig.InsecureTLS
 }
 
+
 func (c *Config) GetGoPhishSessions() bool {
 	return c.gophishConfig.Sessions
 }

